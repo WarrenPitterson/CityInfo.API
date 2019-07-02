@@ -19,3 +19,4 @@ namespace CityInfo.API.Models
 
     }
 }
+ 
