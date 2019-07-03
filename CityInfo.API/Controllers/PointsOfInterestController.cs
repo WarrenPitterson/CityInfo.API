@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,14 @@ namespace CityInfo.API.Controllers
     [Route("api/cities")]
     public class PointsOfInterestController : Controller
     {
+        private ILogger<PointsOfInterestController> _logger;
+        public PointsOfInterestController(ILogger<PointsOfInterestController> logger)
+        {
+            _logger = logger;
+        }
+
         [HttpGet("{cityId}/Pointsofinterests")]
-        public IActionResult GetPointsofInterest(int cityId)
+        public IActionResult GetPointsofInterests(int cityId)
         {
             var city = CitiesDataStore.Current.Cities.FirstOrDefault(c =>c.Id == cityId);
             
@@ -19,11 +26,11 @@ namespace CityInfo.API.Controllers
                 return NotFound();
             }
 
-            return Ok(city.PointOfInterests);
+            return Ok(city.PointsOfInterests);
         }
 
         [HttpGet("{cityId}/Pointsofinterests/{id}")]
-        public IActionResult GetPointofInterest(int cityId, int id)
+        public IActionResult GetPointsofInterests(int cityId, int id)
         {
             var city = CitiesDataStore.Current.Cities.FirstOrDefault(c => c.Id == cityId);
 
@@ -31,13 +38,13 @@ namespace CityInfo.API.Controllers
             {
                 return NotFound();
             }
-            var pointOfInterest = city.PointOfInterests.FirstOrDefault(p => p.Id == id);
+            var pointsOfInterests = city.PointsOfInterests.FirstOrDefault(p => p.Id == id);
 
-            if (pointOfInterest == null)
+            if (pointsOfInterests == null)
             {
                 return NotFound();
             }
-            return Ok(pointOfInterest);
+            return Ok(pointsOfInterests);
         }
     }
 }
