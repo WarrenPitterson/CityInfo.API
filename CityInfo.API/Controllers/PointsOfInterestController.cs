@@ -15,18 +15,29 @@ namespace CityInfo.API.Controllers
         {
             _logger = logger;
         }
-
         [HttpGet("{cityId}/Pointsofinterests")]
+
+
         public IActionResult GetPointsofInterests(int cityId)
         {
-            var city = CitiesDataStore.Current.Cities.FirstOrDefault(c =>c.Id == cityId);
-            
-            if (city == null)
+            try
             {
-                return NotFound();
-            }
+                var city = CitiesDataStore.Current.Cities.FirstOrDefault(c => c.Id == cityId);
 
-            return Ok(city.PointsOfInterests);
+                if (city == null)
+                {
+                    _logger.LogInformation($"City with id {cityId} wasn't found when accessing points of interest");
+                    return NotFound();
+                }
+
+                return Ok(city.PointsOfInterests);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical($"Exception while getting points of interest for city with id {cityId}.", ex);
+                return StatusCode(500, "A problem has been encountered with your request");
+            }
+            
         }
 
         [HttpGet("{cityId}/Pointsofinterests/{id}")]
