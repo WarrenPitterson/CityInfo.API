@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CityInfo.API.Models;
+using CityInfo.API.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -11,14 +13,17 @@ namespace CityInfo.API.Controllers
     public class PointsOfInterestController : Controller
     {
         private ILogger<PointsOfInterestController> _logger;
+        private LocalMailService _mailservice;
         public PointsOfInterestController(ILogger<PointsOfInterestController> logger)
         {
             _logger = logger;
+            //_mailservice = mailservice;
         }
-        [HttpGet("{cityId}/Pointsofinterests")]
 
 
-        public IActionResult GetPointsofInterests(int cityId)
+
+        [HttpGet("{cityId}/Pointsofinterests/{id}", Name = "GetPointofInterest")]
+        public IActionResult GetPointsofInterests(int cityId, int id)
         {
             try
             {
@@ -40,22 +45,46 @@ namespace CityInfo.API.Controllers
             
         }
 
-        [HttpGet("{cityId}/Pointsofinterests/{id}")]
-        public IActionResult GetPointsofInterests(int cityId, int id)
+        [HttpPost("{cityId}/pointsofinterests")]
+        public IActionResult CreatePointOfInterest(int cityId, [FromBody] PointsOfInterestsForCreationDto pointsOfInterest)
         {
+            if (pointsOfInterest == null)
+            {
+                return BadRequest();
+            }
+
+            if (pointsOfInterest.Description == pointsOfInterest.Name)
+            {
+                ModelState.AddModelError("Description", "The provide description should be different from the name");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var city = CitiesDataStore.Current.Cities.FirstOrDefault(c => c.Id == cityId);
 
             if (city == null)
             {
                 return NotFound();
             }
-            var pointsOfInterests = city.PointsOfInterests.FirstOrDefault(p => p.Id == id);
 
-            if (pointsOfInterests == null)
+            var maxPointOfInterestId = CitiesDataStore.Current.Cities.SelectMany(c => c.PointsOfInterests).Max(p => p.Id);
+
+
+            var finalPointOfInterest = new PointsOfInterestsDto()
             {
-                return NotFound();
+                Id = +maxPointOfInterestId,
+                Name = pointsOfInterest.Name,
+                Description = pointsOfInterest.Description
+            };
+            city.PointsOfInterests.Add(finalPointOfInterest);
+
+            return CreatedAtRoute("GetPointOfInterest", new
+            { cityId = cityId, id = finalPointOfInterest.Id }, finalPointOfInterest);
             }
-            return Ok(pointsOfInterests);
         }
+
     }
-}
+
