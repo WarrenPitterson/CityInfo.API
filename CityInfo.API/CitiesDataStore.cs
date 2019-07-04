@@ -21,14 +21,14 @@ namespace CityInfo.API
                 Id = 1,
                 Name = "Manchester",
                 Description = "Best city in the world!!",
-                PointsOfInterests = new List<PointsOfInterestsDto>()
+                PointsOfInterest = new List<PointsOfInterestDto>()
                 {
-                    new PointsOfInterestsDto()
+                    new PointsOfInterestDto()
                     {
                         Id = 1,
                         Name = "Etihad",
                         Description = "Home of Manchester City Football club" },
-                        new PointsOfInterestsDto()
+                        new PointsOfInterestDto()
                         {
                             Id = 2,
                             Name = "Trafford Centre",
@@ -40,9 +40,9 @@ namespace CityInfo.API
                 Id = 2,
                 Name = "Liverpool",
                 Description = "Near Manchester" ,
-            PointsOfInterests = new List<PointsOfInterestsDto>()
+            PointsOfInterest = new List<PointsOfInterestDto>()
             {
-            new PointsOfInterestsDto()
+            new PointsOfInterestDto()
             {
                 Id = 1,
                 Name = "Home of Liverpool and Everton Football club",
@@ -54,9 +54,9 @@ namespace CityInfo.API
                 Id = 3,
                 Name = "Newcastle",
                 Description = "The proper North",
-                PointsOfInterests = new List<PointsOfInterestsDto>()
+                PointsOfInterest = new List<PointsOfInterestDto>()
             {
-            new PointsOfInterestsDto()
+            new PointsOfInterestDto()
             {
                 Id = 1,
                 Name = "Angel of the north ",
@@ -68,9 +68,9 @@ namespace CityInfo.API
                 Id = 4,
                 Name = "London",
                 Description = "UK Capital city",
-                PointsOfInterests = new List<PointsOfInterestsDto>()
+                PointsOfInterest = new List<PointsOfInterestDto>()
             {
-            new PointsOfInterestsDto()
+            new PointsOfInterestDto()
             {
                 Id = 1,
                 Name = "BuckingHam Palace ",
