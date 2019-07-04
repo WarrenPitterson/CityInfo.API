@@ -13,7 +13,7 @@ namespace CityInfo.API.Controllers
     public class PointsOfInterestController : Controller
     {
         private ILogger<PointsOfInterestController> _logger;
-        private LocalMailService _mailservice;
+        //private LocalMailService _mailservice;
         public PointsOfInterestController(ILogger<PointsOfInterestController> logger)
         {
             _logger = logger;
@@ -22,8 +22,8 @@ namespace CityInfo.API.Controllers
 
 
 
-        [HttpGet("{cityId}/Pointsofinterests/{id}", Name = "GetPointofInterest")]
-        public IActionResult GetPointsofInterests(int cityId, int id)
+        [HttpGet("{cityId}/Pointsofinterests")]
+        public IActionResult GetPointsofInterest(int cityId)
         {
             try
             {
@@ -42,27 +42,12 @@ namespace CityInfo.API.Controllers
                 _logger.LogCritical($"Exception while getting points of interest for city with id {cityId}.", ex);
                 return StatusCode(500, "A problem has been encountered with your request");
             }
-            
+
         }
 
-        [HttpPost("{cityId}/pointsofinterests")]
-        public IActionResult CreatePointOfInterest(int cityId, [FromBody] PointsOfInterestsForCreationDto pointsOfInterest)
+        [HttpGet("{cityId}/pointsofinterests/{id}", Name = "GetPointOfInterest")]
+        public IActionResult GetOnePointOfInterest(int cityId, int id)
         {
-            if (pointsOfInterest == null)
-            {
-                return BadRequest();
-            }
-
-            if (pointsOfInterest.Description == pointsOfInterest.Name)
-            {
-                ModelState.AddModelError("Description", "The provide description should be different from the name");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var city = CitiesDataStore.Current.Cities.FirstOrDefault(c => c.Id == cityId);
 
             if (city == null)
@@ -70,21 +55,114 @@ namespace CityInfo.API.Controllers
                 return NotFound();
             }
 
-            var maxPointOfInterestId = CitiesDataStore.Current.Cities.SelectMany(c => c.PointsOfInterests).Max(p => p.Id);
+            var pointsOfInterests = city.PointsOfInterests.FirstOrDefault(p => p.Id == id);
 
-
-            var finalPointOfInterest = new PointsOfInterestsDto()
+            if (pointsOfInterests == null)
             {
-                Id = +maxPointOfInterestId,
-                Name = pointsOfInterest.Name,
-                Description = pointsOfInterest.Description
-            };
-            city.PointsOfInterests.Add(finalPointOfInterest);
-
-            return CreatedAtRoute("GetPointOfInterest", new
-            { cityId = cityId, id = finalPointOfInterest.Id }, finalPointOfInterest);
+                return NotFound();
             }
+            return Ok(pointsOfInterests);
         }
 
+    
+
+
+
+[HttpPost("{cityId}/pointsofinterests")]
+public IActionResult CreatePointOfInterest(int cityId, [FromBody] PointsOfInterestsForCreationDto pointsOfInterests)
+{
+    if (pointsOfInterests == null)
+    {
+        return BadRequest();
     }
+
+    if (pointsOfInterests.Description == pointsOfInterests.Name)
+    {
+        ModelState.AddModelError("Description", "The provide description should be different from the name");
+    }
+
+    if (!ModelState.IsValid)
+    {
+        return BadRequest(ModelState);
+    }
+
+    var city = CitiesDataStore.Current.Cities.FirstOrDefault(c => c.Id == cityId);
+
+    if (city == null)
+    {
+        return NotFound();
+    }
+
+    var maxPointOfInterestId = CitiesDataStore.Current.Cities.SelectMany(c => c.PointsOfInterests).Max(p => p.Id);
+    var finalPointOfInterest = new PointsOfInterestsDto()
+    {
+        Id = +maxPointOfInterestId,
+        Name = pointsOfInterests.Name,
+        Description = pointsOfInterests.Description
+    };
+    city.PointsOfInterests.Add(finalPointOfInterest);
+
+    return CreatedAtRoute("GetPointOfInterest", new
+    { cityId = cityId, id = finalPointOfInterest.Id }, finalPointOfInterest);
+}
+
+
+[HttpPut("{cityId}/pointsofinterest/{id}")]
+public IActionResult UpdatePointOfinterest(int cityId, int id,
+    [FromBody] PointsOfInterestForUpdateDto pointsOfInterests)
+{
+    var city = CitiesDataStore.Current.Cities.FirstOrDefault(c => c.Id == cityId);
+
+    if (pointsOfInterests == null)
+    {
+        return BadRequest();
+    }
+
+    if (pointsOfInterests.Description == pointsOfInterests.Name)
+    {
+        ModelState.AddModelError("Description", "The provide description should be different from the name");
+    }
+
+    if (!ModelState.IsValid)
+    {
+        return BadRequest(ModelState);
+    }
+
+    var pointOfInterestFromStore = city.PointsOfInterests.FirstOrDefault(c => c.Id == id);
+
+    if (pointOfInterestFromStore == null)
+    {
+        return NotFound();
+    }
+
+    pointOfInterestFromStore.Name = pointsOfInterests.Name;
+    pointOfInterestFromStore.Description = pointsOfInterests.Description;
+
+    return NoContent();
+}
+
+[HttpDelete("{cityId}/pointsofinterest/{id}")]
+public IActionResult DeletePointOfInterest(int cityId, int id)
+{
+    var city = CitiesDataStore.Current.Cities.FirstOrDefault(c => c.Id == cityId);
+    if (city == null)
+    {
+        return NotFound();
+    }
+
+    var pointOfInterestFromStore = city.PointsOfInterests.FirstOrDefault(c => c.Id == id);
+    if (pointOfInterestFromStore == null)
+    {
+        return NotFound();
+    }
+
+    city.PointsOfInterests.Remove(pointOfInterestFromStore);
+
+    return NoContent();
+
+}
+    }
+}
+
+
 
